@@ -17,11 +17,6 @@ public class HealthDisplay : MonoBehaviour
         _camera = Camera.main;
     }
 
-    private void Update()
-    {
-        LookAtCamera();
-    }
-
     public void OnHealthChanged(float healthParcentage)
     {
         _healthBarFilling.fillAmount = healthParcentage;
@@ -38,11 +33,5 @@ public class HealthDisplay : MonoBehaviour
     private void HideHealth()
     {
         _healthBar.SetActive(false);
-    }
-
-    private void LookAtCamera()
-    {
-        _healthBar.transform.LookAt(_camera.transform.position);
-        _healthBar.transform.Rotate(0, 180, 0);
     }
 }
