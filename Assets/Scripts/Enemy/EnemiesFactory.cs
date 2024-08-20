@@ -3,50 +3,35 @@ using UnityEngine;
 
 public class EnemiesFactory : MonoBehaviour
 {
+    [SerializeField] private Transform _enemyTarget;
     [SerializeField] private EnemySpawner _spawner;
     [SerializeField] private Enemy _enemy;
-    [SerializeField] private int _health;
-    [SerializeField] private int _damage;
     [SerializeField] private float _spawnDistance;
 
     private SpawnPointGenerator _spawnPointGenerator;
     private EnemySpawner _enemySpawner;
-    private Player _player;
 
-    private List<Enemy> _enemies;
-
-    public List<Enemy> Enemies() => _enemies;
-
-    private void Awake()
+    public void Initialize(EnemySpawner enemySpawner)
     {
-        _player = FindAnyObjectByType<Player>();
-        _enemySpawner = FindAnyObjectByType<EnemySpawner>();
+        _enemySpawner = enemySpawner;
 
         _spawnPointGenerator = new SpawnPointGenerator(_spawnDistance);
-
-        _enemies = new List<Enemy>();
-    }
-
-    public void DestroyEnemy(Enemy enemy)
-    {
-        _enemies.Remove(enemy);
-        _enemySpawner.SpawnedCount--;
-        Destroy(enemy.gameObject);
     }
 
     public List<Enemy> Create(int enemyCount)
     {
+        List<Enemy> enemies = new List<Enemy>();
         for (int i = 0; i < enemyCount; i++)
-            _enemies.Add(Create());
+            enemies.Add(Create());
 
-        return _enemies;
+        return enemies;
     }
 
     private Enemy Create()
     {
-        var spawnpoint = _spawnPointGenerator.Generate(_player.transform.position);
-        Enemy enemy = Instantiate(_enemy, spawnpoint, Quaternion.identity);
-        enemy.Initialize(_player, this, _health, _damage);
+        var spawnpoint = _spawnPointGenerator.Generate(_enemyTarget.transform.position);
+        Enemy enemy = Instantiate(_enemy, spawnpoint, _enemy.transform.rotation);
+        enemy.Initialize(_enemyTarget, this);
 
         enemy.gameObject.SetActive(false);
 

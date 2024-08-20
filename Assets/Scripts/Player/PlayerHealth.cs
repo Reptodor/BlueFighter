@@ -1,4 +1,6 @@
+using UnityEngine;
+
 public class PlayerHealth : Health
 {
-    public PlayerHealth(int health) : base(health) { }
+    public PlayerHealth(Animator animator, int health) : base(animator, health) { }
 }

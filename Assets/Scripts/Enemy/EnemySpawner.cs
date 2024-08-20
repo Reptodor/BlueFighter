@@ -4,18 +4,19 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] private EnemiesFactory _enemiesFactory;
     [SerializeField] private int _enemiesInPoolCount;
     [SerializeField] private float _timeBetweenSpawn;
 
+    private EnemiesFactory _enemiesFactory;
     private List<Enemy> _enemiesInPool;
 
     private float _counter = 20f;
 
-    [HideInInspector] public int SpawnedCount = 0;
+    private int _spawnedCount = 0;
 
-    private void Awake()
+    public void Initialize(EnemiesFactory enemiesFactory)
     {
+        _enemiesFactory = enemiesFactory;
         _enemiesInPool = new List<Enemy>(_enemiesFactory.Create(_enemiesInPoolCount));
     }
 
@@ -42,18 +43,19 @@ public class EnemySpawner : MonoBehaviour
     private void OnEnemyDisabled(Enemy enemy)
     {
         _enemiesInPool.Add(enemy);
+        _spawnedCount--;
         _counter = _timeBetweenSpawn;
     }
 
     private void Spawn()
     {
-        if (SpawnedCount < 5)
+        if (_spawnedCount < _enemiesInPoolCount)
         {
             Enemy enemy  = _enemiesInPool.First();
             enemy.gameObject.SetActive(true);
             _enemiesInPool.Remove(enemy);
 
-            SpawnedCount++;
+            _spawnedCount++;
         }
     }
 

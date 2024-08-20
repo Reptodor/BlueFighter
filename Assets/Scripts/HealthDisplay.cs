@@ -10,13 +10,6 @@ public class HealthDisplay : MonoBehaviour
     
     [SerializeField] private float _healthBarTime;
 
-    private Camera _camera;
-
-    private void Awake()
-    {
-        _camera = Camera.main;
-    }
-
     public void OnHealthChanged(float healthParcentage)
     {
         _healthBarFilling.fillAmount = healthParcentage;

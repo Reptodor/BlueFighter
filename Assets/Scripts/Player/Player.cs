@@ -1,15 +1,20 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(HealthDisplay))]
 public class Player : MonoBehaviour
 {
+    private Animator _animator;
+
     [Header("Movement")]
+    [SerializeField] private Joystick _joystick;
     [SerializeField] private float _movementSpeed;
     [SerializeField] private float _rotateSpeed;
 
     private CharacterController _characterController;
     private PlayerMovement _playerMovement;
+    
 
     [Header("Health")]
     [SerializeField] private GameObject _deathMenu;
@@ -18,22 +23,22 @@ public class Player : MonoBehaviour
     private HealthDisplay _healthDisplay;
     private PlayerHealth _playerHealth;
 
-    private Animator _animator;
 
     [Header("Combat")]
     [SerializeField] private int _damage;
-    [SerializeField] private float _damageDistance;
+    private PlayerCombatSystem _playerCombatSystem;
     private Fist[] _fists;
 
-    private void Awake()
+    public void Initialize()
     {
         _characterController = GetComponent<CharacterController>();
         _healthDisplay = GetComponent<HealthDisplay>();
         _animator = GetComponent<Animator>();
-        _fists = GetComponentsInChildren<Fist>();
+        _fists = GetComponentsInChildren<PlayerFist>();
 
-        _playerMovement = new PlayerMovement(_characterController, _movementSpeed, _rotateSpeed);
-        _playerHealth = new PlayerHealth(_health);
+        _playerMovement = new PlayerMovement(_animator, _characterController, _movementSpeed, _rotateSpeed);
+        _playerHealth = new PlayerHealth(_animator, _health);
+        _playerCombatSystem = new PlayerCombatSystem(_animator, _fists);
 
         foreach (var fist in _fists)
         {
@@ -56,8 +61,12 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        _playerMovement.MovePlayer(new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")));
-        Attack();
+        _playerMovement.MovePlayer(new Vector3(_joystick.Horizontal, 0, _joystick.Vertical));
+    }
+
+    public void Attack(bool isAttacking)
+    {
+        _playerCombatSystem.Attack(isAttacking);
     }
 
     public void RecieveDamage(int damage)
@@ -65,29 +74,9 @@ public class Player : MonoBehaviour
         _playerHealth.RecieveDamage(damage);
     }
 
-    private void Attack()
-    {
-        if (Input.GetMouseButton(0))
-        {
-            _animator.SetBool("Attacking", true);
-            foreach (var fist in _fists)
-            {
-                fist.gameObject.SetActive(true);
-            }
-        }
-        if(Input.GetMouseButtonUp(0))
-        {
-            _animator.SetBool("Attacking", false);
-            foreach (var fist in _fists)
-            {
-                fist.gameObject.SetActive(false);
-            }
-        }
-
-    }
-
     private void OnDied()
     {
-        _deathMenu.SetActive(true);
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentSceneIndex);
     }
 }

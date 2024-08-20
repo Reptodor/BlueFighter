@@ -1,15 +1,18 @@
 using System;
+using UnityEngine;
 
 public abstract class Health
 {
+    private Animator _animator;
     protected int BaseHealth;
     protected int CurrentHealth;
 
     public Action<float> HealthChanged;
     public Action Died;
 
-    public Health(int health)
+    public Health(Animator animator,int health)
     {
+        _animator = animator;
         BaseHealth = health;
         CurrentHealth = BaseHealth;
     }
@@ -22,6 +25,7 @@ public abstract class Health
             throw new ArgumentOutOfRangeException(nameof(damage));
 
         CurrentHealth -= damage;
+        _animator.SetTrigger("Hitted");
         HealthChanged?.Invoke(GetCurrentHealthPercentage());
 
         if (CurrentHealth <= 0)
